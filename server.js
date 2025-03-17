@@ -93,5 +93,25 @@ app.put('/items/:id', async (req, res) => {
     }
 });
 
+// Delete an item
+app.delete('/items/:id', async (req, res) => {
+  try {
+      const { id } = req.params;
+      let items = await readItems();
+      const index = items.findIndex((i) => i.id === id);
+
+      if (index === -1) {
+          return res.status(404).json({ error: 'Item not found' });
+      }
+
+      items.splice(index, 1); // Remove the item from the array
+      writeItems(items); // Write the updated items back to the CSV file
+
+      res.json({ message: 'Item deleted' });
+  } catch (error) {
+      res.status(500).json({ error: 'Error deleting item' });
+  }
+});
+
 // Start server
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

@@ -26,7 +26,7 @@ const readItems = () => {
 
 // Function to write items to CSV
 const writeItems = (items) => {
-    const csvFields = ['id', 'date', 'brand', 'item', 'price'];
+    const csvFields = ['id', 'date', 'brand', 'item', 'price', 'user', 'category', 'payment'];
     const csvData = parse(items, { fields: csvFields });
 
     fs.writeFileSync(FILE_PATH, csvData);
@@ -34,7 +34,7 @@ const writeItems = (items) => {
 
 // Ensure CSV file exists
 if (!fs.existsSync(FILE_PATH)) {
-    fs.writeFileSync(FILE_PATH, 'id,date,brand,item,price\n');
+    fs.writeFileSync(FILE_PATH, 'id,date,brand,item,price,user,category,payment\n');
 }
 
 // Get all items
@@ -50,14 +50,17 @@ app.get('/items', async (req, res) => {
 // Add a new item
 app.post('/items', async (req, res) => {
     try {
-        const { date, brand, item, price } = req.body;
+        const { date, brand, item, price, user, category, payment } = req.body;
         const items = await readItems();
         const newItem = {
             id: Date.now().toString(),
             date,
             brand,
             item,
-            price
+            price,
+            user,
+            category,
+            payment
         };
 
         items.push(newItem);
@@ -73,7 +76,7 @@ app.post('/items', async (req, res) => {
 app.put('/items/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const { date, brand, item, price } = req.body;
+        const { date, brand, item, price, user, category, payment } = req.body;
         let items = await readItems();
         const index = items.findIndex((i) => i.id === id);
 
@@ -81,7 +84,7 @@ app.put('/items/:id', async (req, res) => {
             return res.status(404).json({ error: 'Item not found' });
         }
 
-        items[index] = { id, date, brand, item, price };
+        items[index] = { id, date, brand, item, price, user, category, payment };
         writeItems(items);
 
         res.json({ message: 'Item updated', item: items[index] });
